@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="lwjgl-stable-2020-02-06-custom">
+    <CLASSES>
+      <root url="file://$USER_HOME$/Desktop/lwjgl-stable-2020-02-06-custom" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Desktop/lwjgl-stable-2020-02-06-custom" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/Desktop/lwjgl-stable-2020-02-06-custom" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Desktop/lwjgl-stable-2020-02-06-custom" recursive="false" type="SOURCES" />
+  </library>
+</component>
