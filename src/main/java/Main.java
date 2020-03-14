@@ -40,7 +40,7 @@ public static long window;
         public void invoke(long window, int key, int scancode, int action, int mods) {
             if (key == GLFW_KEY_W && action == GLFW_PRESS) {
                 System.out.println("W pressed");
-    offset.z= 1.0f;
+    //offset.z= 10.0f;
 
             }
         }
@@ -59,13 +59,23 @@ public static long window;
 
     public static void main(String [] args) {
 
-        float[] position = new float[] {
-                -0.5f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f
+        float[] positions = new float[] {
+                // VO
+                -0.5f, 0.5f, 0.5f,
+// V1
+                -0.5f, -0.5f, 0.5f,
+// V2
+                0.5f, -0.5f, 0.5f,
+// V3
+                0.5f, 0.5f, 0.5f,
+// V4
+                -0.5f, 0.5f, -0.5f,
+// V5
+                0.5f, 0.5f, -0.5f,
+// V6
+                -0.5f, -0.5f, -0.5f,
+// V7
+                0.5f, -0.5f, -0.5f,
 
         };
 
@@ -75,6 +85,17 @@ public static long window;
 
         int[] indices = new int[]{
                 // Front face
+                0, 1, 3, 3, 1, 2,
+// Top Face
+                4, 0, 3, 5, 4, 3,
+// Right face
+                3, 2, 7, 5, 3, 7,
+// Left face
+                6, 1, 0, 6, 0, 4,
+// Bottom face
+                2, 1, 6, 2, 6, 7,
+// Back face
+                7, 6, 4, 7, 4, 5,
 
         };
 
@@ -83,6 +104,12 @@ public static long window;
                 0.0f, 0.5f, 0.0f,
                 0.0f, 0.0f, 0.5f,
                 0.0f, 0.5f, 0.5f,
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f,
+                0.0f, 0.0f, 0.5f,
+                0.0f, 0.5f, 0.5f,
+
+
 
         };
 
@@ -114,7 +141,9 @@ public static long window;
 
        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        //glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CCW);
+        glCullFace(GL_BACK);
 //window size
         IntBuffer w = BufferUtils.createIntBuffer(1);
         IntBuffer h = BufferUtils.createIntBuffer(1);
@@ -131,7 +160,7 @@ public static long window;
         projectionMatrix = new Matrix4f().perspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 //world matrix
         offset = new Vector3f(0.0f,0.0f,-3.0f);
-        Vector3f rotation = new Vector3f(0.0f,0.0f,0.0f);
+        Vector3f rotation = new Vector3f(0.0f,30.0f,0.0f);
         float scale = 1.0f;
         Matrix4f worldMatrix = new Matrix4f().identity().translate(offset).
                 rotateX((float)Math.toRadians(rotation.x)).
@@ -149,11 +178,11 @@ public static long window;
         int vao = glGenVertexArrays();
         glBindVertexArray(vao);
 //vbo
-        FloatBuffer verticesBuffer = memAllocFloat(position.length);
-             verticesBuffer.put(position).flip();
+        FloatBuffer colorB = memAllocFloat(colours.length);
+             colorB.put(colours).flip();
              int vbo = glGenBuffers();
              glBindBuffer(GL_ARRAY_BUFFER, vbo);
-             glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, colorB, GL_STATIC_DRAW);
 
   //vbo
         int idxVboId = glGenBuffers();
@@ -166,11 +195,11 @@ public static long window;
 
 
 //vbo
-        int colourVboId = glGenBuffers();
-        FloatBuffer colourBuffer = memAllocFloat(colours.length);
-        colourBuffer.put(colours).flip();
-        glBindBuffer(GL_ARRAY_BUFFER, colourVboId);
-        glBufferData(GL_ARRAY_BUFFER, colourBuffer, GL_STATIC_DRAW);
+        int posVboId = glGenBuffers();
+        FloatBuffer posBuffer = memAllocFloat(positions.length);
+        posBuffer.put(positions).flip();
+        glBindBuffer(GL_ARRAY_BUFFER, posVboId);
+        glBufferData(GL_ARRAY_BUFFER, posBuffer, GL_STATIC_DRAW);
         //memFree(colourBuffer);
 
 
@@ -234,7 +263,7 @@ public static long window;
 
 
 
-        while(!glfwWindowShouldClose(window)){
+       while(!glfwWindowShouldClose(window)){
 
 
            // width = w.get(0);
@@ -243,10 +272,9 @@ public static long window;
 
 
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glDrawArrays(GL_TRIANGLES, 0, position.length);
-
+            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
 
 
             glfwSwapBuffers(window);
@@ -262,8 +290,8 @@ public static long window;
         glUseProgram(0);
         glDeleteProgram(shaderProgram);
         glBindVertexArray(0);
-        memFree(verticesBuffer);
-        memFree(colourBuffer);
+        memFree(colorB);
+        memFree(posBuffer);
         memFree(indicesBuffer);
         glBindVertexArray(0);
         glfwDestroyWindow(window);
